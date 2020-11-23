@@ -1,0 +1,23 @@
+-------Data Locations----------
+ROOTDirectory: /home/catrina/Documents/GWM_EventBuilder-master/example
+BinaryArchiveDirectory: /home/catrina/Documents/GWM_EventBuilder-master/example/raw_binary/
+BinaryFileDirectory: none
+MergeInputDirectory: none
+MergeOutputFile: none
+PlotOutputFile: /home/catrina/Documents/GWM_EventBuilder-master/example/histograms/test_run99_v2.root
+-------------------------------
+------Experimental Inputs------
+ChannelMapFile: ./etc/ChannelMap_Nov2020_newFormat.txt
+ScalerFile: none
+CutListFile: ./etc/CutList_March2020.txt
+-------------------------------
+-------Timing Information------
+BoardOffsetFile: none
+SlowCoincidenceWindow(ps): 3e6
+FastCoincidenceWindow_IonCh(ps): 0.300e6
+FastCoincidenceWindow_SABRE(ps): 0.300e6
+-------------------------------
+--------Run Information--------
+MinRun: 404
+MaxRun: 404
+-------------------------------
