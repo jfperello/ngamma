@@ -1,6 +1,6 @@
-# SPS-SABRE Data Analysis Package
-Version 2
-This is a software package designed to help experimenters analyze data from SPS-SABRE at FSU. 
+# FSU CATRiNA-CLOVERS Data Analysis Package
+Version 1
+This is a software package designed to help experimenters analyze data from CATRiNA-CLOVERS at FSU. 
 It can convert CoMPASS data to ROOT, sort the data in time, build events, perform preliminary analysis and provide basic plots. Programs are built using make, and a make file is included. Simply using the command make will build all programs.
 
 WHEN TESTING, RUN WITH WIDE WINDOWS
