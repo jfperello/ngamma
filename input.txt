@@ -18,6 +18,6 @@ FastCoincidenceWindow_IonCh(ps): 0.300e6
 FastCoincidenceWindow_SABRE(ps): 0.300e6
 -------------------------------
 --------Run Information--------
-MinRun: 404
-MaxRun: 404
+MinRun: 21
+MaxRun: 21
 -------------------------------
