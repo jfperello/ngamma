@@ -22,58 +22,43 @@ struct DetectorHit {
 
 
 struct catrina {
-  vector<DetectorHit> detector0,detector1,detector2,detector3,detector4,detector5,detector6,detector7;
-  vector<DetectorHit> detector8,detector9,detector10,detector11,detector12,detector13,detector14,detector15,RF;
+  vector<DetectorHit> detector;
 };
 
 
 struct clovers {
   vector<DetectorHit> crystals;
+
+};
+
+struct BGO {
   vector<DetectorHit> shields;
 
 };
 
 struct CoincEvent {
-  catrina neutron;
-  clovers CloverArray[6]; //0 = cl3, 1 = cl1, 2 = c3 (noshield on c3)
+  catrina neutron[17]; //17th slot is reserved for the RF
+  clovers CloverArray[21]; //0-3 cl1, 4-7 cl2, 8-11 cl3, 12-15 c3, 16-19 d4, 20 LEPS
+  BGO Shield[3]; //0 = cl3, 1 = cl1, 2 = cl3 (noshield on c3 or d4)
 };
 
 
 
 
 struct ProcessedEvent {
-
-
-
-  Double_t CloverCrystalE[6] = {-1,-1,-1,-1,-1,-1}, CloverShieldE[6] = {-1,-1,-1,-1,-1,-1};
-  Double_t CloverCrystalChannel[6] = {-1,-1,-1,-1,-1,-1}, CloverShieldChannel[6] = {-1,-1,-1,-1,-1,-1};
-  Double_t CloverCrystalTime[6] = {-1,-1,-1,-1,-1,-1}, CloverShieldTime[6] = {-1,-1,-1,-1,-1,-1};
-
-  Double_t neutronTime[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t neutronLong[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t neutronShort[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t RFTime = -1, RFLong = -1; 
-
-
-
-  clovers CloverArray[6]; //0 = cl3, 1 = cl1, 2 = cl3, 3 = C3, 4=D4, 5= LEPS
+  Double_t CrystalE[6] = {-1,-1,-1,-1,-1,-1};
+  Double_t CloverChannel[20] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  Double_t Long[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
+  Double_t RF[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  Double_t nQ[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  Double_t nE[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  Double_t TR[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 };
 
-struct AnalyzedEvent {
-
-  Double_t TR[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t nLong[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t nLong1[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t nLong2[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t nLong3[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t RF[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t RF1[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t RF2[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  Double_t RF3[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-
-  Double_t CloverCrystalE[6] = {-1,-1,-1,-1,-1,-1};
-
-
+struct FinalEvent {
+  //Double_t CrystalE[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  //Double_t CrystalE_p3[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  //Double_t CrystalE_rp[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 };
 
 
