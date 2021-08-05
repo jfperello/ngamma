@@ -10,12 +10,12 @@
 #include "EventBuilder.h"
 #include "SlowSort.h"
 
-/*Sort the Clover Data in order of descending energy*/
+/*Sort the Sabre Data in order of descending energy*/
 bool CloverSort(DetectorHit i, DetectorHit j) {
   return (i.Long>j.Long);
 }
 
-/*Constructor takes input of coincidence window size, and fills Clover channel map*/
+/*Constructor takes input of coincidence window size, and fills sabre channel map*/
 SlowSort::SlowSort() :
   coincWindow(-1.0), eventFlag(false), event(), cmap()
 {
@@ -35,41 +35,23 @@ SlowSort::~SlowSort() {
 /**EXPERIMENT MODS go here**/
 void SlowSort::InitVariableMaps() {
 
-  /*For clovers: Each clovers has crystals&shield, so add the detID to the
-    CRYST/SHIELD attribute to differentiate*/
-  for(int i=0; i<6; i++) {
-    CloverVMap[CRYST + i] = &event.CloverArray[i].crystals;
+    /*For clovers: Each clovers has crystals&shield, so add the partID to the
+      CRYST/SHIELD attribute to differentiate*/
+    for (int i = 0; i < 21; i++) {
+        CloverVMap[CRYST + i] = &event.CloverArray[i].crystals;
 
-  }
+    }
 
-  for(int i=0; i<3; i++) {
-    CloverVMap[SHIELD + i] = &event.CloverArray[i].shields;
- }
+    for (int i = 0; i < 3; i++) {
+        CloverVMap[SHIELD + i] = &event.Shield[i].shields;
+    }
 
-  /*For catrina: Only one catrina array, so each variable is uniquely
-    identified by the attribute + its partname
-  */
-
-  fpVMap[CATRINA + 0] = &event.neutron.detector0;
-  fpVMap[CATRINA + 1] = &event.neutron.detector1;
-  fpVMap[CATRINA + 2] = &event.neutron.detector2;
-  fpVMap[CATRINA + 3] = &event.neutron.detector3;
-  fpVMap[CATRINA + 4] = &event.neutron.detector4;
-  fpVMap[CATRINA + 5] = &event.neutron.detector5;
-  fpVMap[CATRINA + 6] = &event.neutron.detector6;
-  fpVMap[CATRINA + 7] = &event.neutron.detector7;
-  fpVMap[CATRINA + 8] = &event.neutron.detector8;
-  fpVMap[CATRINA + 9] = &event.neutron.detector9;
-  fpVMap[CATRINA + 10] = &event.neutron.detector10;
-  fpVMap[CATRINA + 11] = &event.neutron.detector11;
-  fpVMap[CATRINA + 12] = &event.neutron.detector12;
-  fpVMap[CATRINA + 13] = &event.neutron.detector13;
-  fpVMap[CATRINA + 14] = &event.neutron.detector14;
-  fpVMap[CATRINA + 15] = &event.neutron.detector15;
-  fpVMap[CATRINA + 16] = &event.neutron.RF;
-
-
-
+    /*For catrina: Only one catrina array, so each variable is uniquely
+      identified by the attribute + its partID
+    */
+    for (int i = 0; i < 17; i++) {
+	fpVMap[CATRINA + i] = &event.neutron[i].detector;
+    }
 
 }
 
@@ -139,112 +121,42 @@ void SlowSort::ProcessEvent() {
   int gchan;
   int size = hitList.size();
   for(DPPChannel& curHit: hitList) {
-    gchan = curHit.Channel + curHit.Board*16; //global channel
-    event_stats->Fill(gchan, size);
-    dhit.Time = curHit.Timestamp/1.0e3;
-    dhit.Ch = gchan;
-    dhit.Long = curHit.Energy;
-    auto channel_info = cmap.FindChannel(gchan);
-    if(channel_info == cmap.End()) {
-      continue;
-    }
-    if(channel_info->second.detectorType == CRYST || channel_info->second.detectorType == SHIELD) {
+	gchan = curHit.Channel + curHit.Board*16; //global channel
+    	event_stats->Fill(gchan, size);
+    	dhit.Time = curHit.Timestamp/1.0e3;
+    	dhit.Ch = gchan;
+    	dhit.Long = curHit.Energy;
+    	dhit.Short = curHit.EnergyShort;
+    	auto channel_info = cmap.FindChannel(gchan);
+    	if(channel_info == cmap.End()) {
+      		continue;
+    	}
+	if (channel_info->second.detectorType == CRYST || channel_info->second.detectorType == SHIELD) {
+            	auto variable = CloverVMap.find(channel_info->second.detectorType + channel_info->second.detectorID);
+            	if (variable != CloverVMap.end()) {
+                	variable->second->push_back(dhit);
+            	}
 
-      auto variable = CloverVMap.find(channel_info->second.detectorType + channel_info->second.detectorID);
-      if(variable != CloverVMap.end()) {
-        variable->second->push_back(dhit);
-      }
+        }else if (channel_info->second.detectorType == CATRINA) {
 
-    } else if(channel_info->second.detectorType == CATRINA) {
-      
-      auto variable = fpVMap.find(channel_info->second.detectorType + channel_info->second.detectorPart);
-      if(variable !=  fpVMap.end()) {
-        variable->second->push_back(dhit);
-      }
+            	auto variable = fpVMap.find(channel_info->second.detectorType + channel_info->second.detectorPart);
+            	if (variable != fpVMap.end()) {
+                	variable->second->push_back(dhit);
+            	}
 
-    } else {
-      std::cerr<<"bleh"<<std::endl;
-      std::cout<<"info: "<<channel_info->second.detectorType<<std::endl;
-    }
-  }
-  //Organize the Clover data in descending energy order
-  for(int s=0; s<5; s++) {
-    sort(event.CloverArray[s].crystals.begin(), event.CloverArray[s].crystals.end(), CloverSort);
-  }
-  for(int s=0; s<3; s++) {
-    sort(event.CloverArray[s].shields.begin(), event.CloverArray[s].shields.end(), CloverSort);
-  }
+        }else if (channel_info->second.detectorType == TRASH){
+			continue;
+        } 
+	else {
+      		std::cerr<<"bleh"<<std::endl;
+      		std::cout<<"info: "<<channel_info->second.detectorType<<std::endl;
+    	}
 }
-
-/*Loop over all input events, function called by main*/
-void SlowSort::Run(const char *infile_name, const char *outfile_name) {
-  if(!cmap.IsValid()) {
-    cerr<<"Unable to process with illegal map!"<<endl;
-    return;
-  }
-
-  TFile* compFile = new TFile(infile_name, "READ");
-  TTree* compassTree = (TTree*) compFile->Get("Data");
-  TFile* outputFile = new TFile(outfile_name, "RECREATE");
-  TTree* SortTree = new TTree("SortTree","SortTree");
-
-  UShort_t board, channel, lgate, sgate;
-  ULong64_t timestamp;
-  UInt_t flags;
-
-  compassTree->SetBranchAddress("Energy", &lgate);
-  compassTree->SetBranchAddress("EnergyShort", &sgate);
-  compassTree->SetBranchAddress("Timestamp", &timestamp);
-  compassTree->SetBranchAddress("Channel", &channel);
-  compassTree->SetBranchAddress("Board", &board);
-  compassTree->SetBranchAddress("Flags", &flags);
-  
-  SortTree->Branch("event", "CoincEvent", &event);
-  startTime = 0; previousHitTime = 0; //initialize
-  
-  Int_t blentries = compassTree->GetEntries();
-  cout<<setprecision(0)<<fixed;
-  cout<<"Number of entries: "<<blentries<<endl;
- 
-  Float_t place;
-  for(ULong64_t i=0; i<compassTree->GetEntries(); i++) {
-    compassTree->GetEntry(i);
-
-    /*Convert out of unsigned integer land to floating point rep for better math*/
-    hit.Energy = lgate;
-    hit.EnergyShort = sgate;
-    hit.Timestamp = timestamp;
-    hit.Board = board;
-    hit.Channel = channel;
-    hit.Flags = flags;
-    
-    place = ((long double)i)/blentries*100;
-    if(fmod(place, 10.0) == 0) { //Non-continuous progress update
-      cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
+  //Organize the SABRE data in descending energy order
+    for (int s = 0; s < 21; s++) {
+        sort(event.CloverArray[s].crystals.begin(), event.CloverArray[s].crystals.end(), CloverSort);
     }
-
-    if(hitList.empty()) {//first hit in file starts first event
-      StartEvent();
-    } else if (hit.Timestamp < previousHitTime) {//out of order check
-      cerr<<"This timestamp: "<<hit.Timestamp<<" is out of order with : "<<previousHitTime
-          <<". Skipping hit!"<<endl;
-    } else if ((double)(hit.Timestamp - startTime)< coincWindow) {
-      hitList.push_back(hit);
-    } else if (hitList.size()>0) { 
-      ProcessEvent();
-      SortTree->Fill();
-      /*Start next event with the hit in hand*/
-      hitList.resize(0);
-      StartEvent();
+    for (int s = 0; s < 3; s++) {
+        sort(event.Shield[s].shields.begin(), event.Shield[s].shields.end(), CloverSort);
     }
-
-    previousHitTime = hit.Timestamp;
-  }
-  cout<<endl;
-  outputFile->cd();
-  SortTree->Write(SortTree->GetName(), TObject::kOverwrite);
-  compFile->Close();
-  outputFile->Close();
-  delete compFile;
-  delete outputFile;
 }
