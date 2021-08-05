@@ -4,7 +4,6 @@
  *histograms of the larger data set.
  *
  *Created Jan 2020 by GWM
- *Refurbished May 2021 by JFP for CATRiNA/Clover experiments
  */
 
 #include "EventBuilder.h"
@@ -18,21 +17,8 @@ SFPPlotter::SFPPlotter() {
   event_address = new ProcessedEvent();
 
   nCutFile = NULL;
-  ncut1_0 = NULL, ncut1_4 = NULL, ncut1_12 = NULL, ncut3_2 = NULL;
-  ncut2_0 = NULL, ncut2_4 = NULL, ncut2_12 = NULL, ncut2_2 = NULL;
-  ncut3_0 = NULL, ncut3_4 = NULL, ncut3_12 = NULL, ncut1_2 = NULL;
-  ncut1_1 = NULL, ncut1_5 = NULL, ncut1_9 = NULL, ncut1_13 = NULL;
-  ncut2_1 = NULL, ncut2_5 = NULL, ncut2_9 = NULL, ncut2_13 = NULL;
-  ncut3_1 = NULL, ncut3_5 = NULL, ncut3_9 = NULL, ncut3_13 = NULL;
-  ncut1_0 = NULL, ncut1_6 = NULL, ncut1_10 = NULL, ncut1_14 = NULL;
-  ncut2_0 = NULL, ncut2_6 = NULL, ncut2_10 = NULL, ncut2_14 = NULL;
-  ncut3_0 = NULL, ncut3_6 = NULL, ncut3_10 = NULL, ncut3_14 = NULL;
-  ncut1_3 = NULL, ncut1_7 = NULL, ncut1_11 = NULL, ncut1_15 = NULL;
-  ncut2_3 = NULL, ncut2_7 = NULL, ncut2_11 = NULL, ncut2_15 = NULL;
-  ncut3_3 = NULL, ncut3_7 = NULL, ncut3_11 = NULL, ncut3_15 = NULL;
   rp = NULL;
   plus3 = NULL;
-  LongRF = NULL;
   greject = NULL;
   chain = new TChain("SPSTree");
   m_pb = NULL;
@@ -128,41 +114,6 @@ void SFPPlotter::MyFill(string name, double valuex,int i) {
 
 }
 
-
-
-Double_t SFPPlotter::nLong(double y, int i){
-	double a[16] = {0.6685,1.0062,0.7253,1.1045,1.2789,1.0657,0.7319,0.7928,0,0.65587,0,0.8279,0.9662,0.8617,0,0.81135};
-	double b[16] = {63.8665,-131.7577,-61.9522,66.1090,-356.8736,-652.7368,84.6867,63.9396,0,77.5748,0,-33.01022,48.0059,54.7659,0,86.7395};
-	double ph;
-	ph = a[i]*y+b[i];
-	return(ph);
-
-}
-Double_t SFPPlotter::TOF(double y, int i, int j){
-	double theta[16] = {0.7223,0.47211,0.24094,0.53169,0.39905,0.66434,0.60223,0.36137,0,0.26641,0.53169,0.79721,0.60223,0.36137,0.26641,0.79721}; //angles in radians
-	double d[16] = {0.93131,0.91706,0.92973,0.96139,0.9044,0.89491,0.91706,0.92973,0.91706,0.91073,0.89491,0.89648,0.98039,0.97406,0.96614,0.95664}; //detector distance in cm
-	double E3 = 10;            //3he beam incident energy in MeV
-	double mn = 1.008664*931.4943;      //neutron mass in MeV/c^2
-	double m3 = 3.016029*931.4943;	   //3he mass in MeV/c^2	
-	double m26 = 25.992333*931.4943;  //26si mass in MeV/c^2	
-	double c0 = 5226.77;      //constants pulled out of E, 939.564766*100/(2*2.998^2);
-	double En,Q;
-/*-------------------CATRiNA---------------------*/
-	if(j==1){ //returns only energy	
-		En = c0*pow(d[i],2)/pow(y,2);      //neutron energy in MeV
-		return(En); 
-	}
-	if(j==2){ //returns only Q
-		En = c0*(d[i]*d[i])/(y*y);      //neutron energy in MeV
-		Q = En - E3 + (m3*E3+mn*En-2*sqrt(m3*mn*E3*En)*cos(theta[i]))/m26; //Q function
-		return(Q); 
-	}
-	else{
-		return(y); 
-	}
-}
-
-
 void SFPPlotter::Reset() {
   event = empty;
 }
@@ -174,44 +125,10 @@ void SFPPlotter::Reset() {
 int SFPPlotter::SetCuts(string cutfilename) {
     nCutFile = new TFile(cutfilename.c_str(), "READ");
     if (nCutFile->IsOpen()) {
-       	ncut1_0 = (TCutG*)nCutFile->Get("ncut1_0"), ncut2_0 = (TCutG*)nCutFile->Get("ncut2_0"), ncut3_0 = (TCutG*)nCutFile->Get("ncut3_0"), ncut1_1 = (TCutG*)nCutFile->Get("ncut1_1");
-        ncut2_1 = (TCutG*)nCutFile->Get("ncut2_1"), ncut3_1 = (TCutG*)nCutFile->Get("ncut3_1"), ncut1_0 = (TCutG*)nCutFile->Get("ncut1_0"), ncut2_0 = (TCutG*)nCutFile->Get("ncut2_0");
-        ncut3_0 = (TCutG*)nCutFile->Get("ncut3_0"), ncut1_3 = (TCutG*)nCutFile->Get("ncut1_3"), ncut2_3 = (TCutG*)nCutFile->Get("ncut2_3"), ncut3_3 = (TCutG*)nCutFile->Get("ncut3_3");
-        ncut1_4 = (TCutG*)nCutFile->Get("ncut1_4"), ncut2_4 = (TCutG*)nCutFile->Get("ncut2_4"), ncut3_4 = (TCutG*)nCutFile->Get("ncut3_4"), ncut1_5 = (TCutG*)nCutFile->Get("ncut1_5");
-        ncut2_5 = (TCutG*)nCutFile->Get("ncut2_5"), ncut3_5 = (TCutG*)nCutFile->Get("ncut3_5"), ncut1_6 = (TCutG*)nCutFile->Get("ncut1_6"), ncut2_6 = (TCutG*)nCutFile->Get("ncut2_6");
-        ncut3_6 = (TCutG*)nCutFile->Get("ncut3_6"), ncut1_7 = (TCutG*)nCutFile->Get("ncut1_7"), ncut2_7 = (TCutG*)nCutFile->Get("ncut2_7"), ncut3_7 = (TCutG*)nCutFile->Get("ncut3_7");
-        ncut1_2 = (TCutG*)nCutFile->Get("ncut1_2"), ncut2_2 = (TCutG*)nCutFile->Get("ncut2_2"), ncut3_2 = (TCutG*)nCutFile->Get("ncut3_2"), ncut1_9 = (TCutG*)nCutFile->Get("ncut1_9");
-        ncut2_9 = (TCutG*)nCutFile->Get("ncut2_9"), ncut3_9 = (TCutG*)nCutFile->Get("ncut3_9"), ncut1_10 = (TCutG*)nCutFile->Get("ncut1_10"), ncut2_10 = (TCutG*)nCutFile->Get("ncut2_10");
-        ncut3_10 = (TCutG*)nCutFile->Get("ncut3_10"), ncut1_11 = (TCutG*)nCutFile->Get("ncut1_11"), ncut2_11 = (TCutG*)nCutFile->Get("ncut2_11"), ncut3_11 = (TCutG*)nCutFile->Get("ncut3_11");
-        ncut2_12 = (TCutG*)nCutFile->Get("ncut2_12"), ncut3_12 = (TCutG*)nCutFile->Get("ncut3_12"), ncut1_13 = (TCutG*)nCutFile->Get("ncut1_13"), ncut2_13 = (TCutG*)nCutFile->Get("ncut2_13");
-        ncut3_13 = (TCutG*)nCutFile->Get("ncut3_13"), ncut1_14 = (TCutG*)nCutFile->Get("ncut1_14"), ncut2_14 = (TCutG*)nCutFile->Get("ncut2_14"), ncut1_12 = (TCutG*)nCutFile->Get("ncut1_12");
-        ncut3_14 = (TCutG*)nCutFile->Get("ncut3_14"), ncut1_15 = (TCutG*)nCutFile->Get("ncut1_15"), ncut2_15 = (TCutG*)nCutFile->Get("ncut2_15"), ncut3_15 = (TCutG*)nCutFile->Get("ncut3_15");
-        rootObj->Add(ncut1_0), rootObj->Add(ncut2_0), rootObj->Add(ncut3_0), rootObj->Add(ncut1_1), rootObj->Add(ncut2_1), rootObj->Add(ncut3_1), rootObj->Add(ncut1_0), rootObj->Add(ncut2_0), rootObj->Add(ncut3_0), rootObj->Add(ncut1_3);
-        rootObj->Add(ncut2_3), rootObj->Add(ncut3_3), rootObj->Add(ncut1_4), rootObj->Add(ncut2_4), rootObj->Add(ncut3_4), rootObj->Add(ncut1_5), rootObj->Add(ncut2_5), rootObj->Add(ncut3_5), rootObj->Add(ncut1_6), rootObj->Add(ncut2_6), rootObj->Add(ncut3_6);
-        rootObj->Add(ncut1_7), rootObj->Add(ncut2_7), rootObj->Add(ncut3_7), rootObj->Add(ncut1_9), rootObj->Add(ncut2_9), rootObj->Add(ncut3_9), rootObj->Add(ncut1_10), rootObj->Add(ncut2_10), rootObj->Add(ncut2_2), rootObj->Add(ncut3_2);
-        rootObj->Add(ncut3_10), rootObj->Add(ncut1_11), rootObj->Add(ncut2_11), rootObj->Add(ncut3_11), rootObj->Add(ncut1_12), rootObj->Add(ncut2_12), rootObj->Add(ncut3_12), rootObj->Add(ncut1_13), rootObj->Add(ncut2_13), rootObj->Add(ncut3_13);
-        rootObj->Add(ncut3_10), rootObj->Add(ncut1_11), rootObj->Add(ncut1_14), rootObj->Add(ncut2_14), rootObj->Add(ncut3_14), rootObj->Add(ncut1_15), rootObj->Add(ncut2_15), rootObj->Add(ncut3_15), rootObj->Add(ncut1_2);
-	rp = (TCutG*)nCutFile->Get("rp"), plus3 = (TCutG*)nCutFile->Get("plus3"), greject = (TCutG*)nCutFile->Get("greject"), LongRF = (TCutG*)nCutFile->Get("LongRF");
-    	rootObj->Add(rp),rootObj->Add(plus3), rootObj->Add(greject), rootObj->Add(LongRF);
+    	rp = (TCutG*)nCutFile->Get("rp"), plus3 = (TCutG*)nCutFile->Get("plus3"), greject = (TCutG*)nCutFile->Get("greject");
+    	rootObj->Add(rp),rootObj->Add(plus3), rootObj->Add(greject);
     }
-    if(ncut1_0 != NULL && ncut1_4 != NULL &&
-        ncut2_0 != NULL && ncut2_4 != NULL &&
-        ncut3_0 != NULL && ncut3_4 != NULL &&
-        ncut3_2 != NULL && ncut2_2 != NULL && ncut1_2 != NULL &&
-        ncut1_1 != NULL && ncut1_5 != NULL && ncut1_9 != NULL &&
-        ncut2_1 != NULL && ncut2_5 != NULL && ncut2_9 != NULL &&
-        ncut3_1 != NULL && ncut3_5 != NULL && ncut3_9 != NULL &&
-        ncut1_0 != NULL && ncut1_6 != NULL && ncut1_10 != NULL &&
-        ncut2_0 != NULL && ncut2_6 != NULL && ncut2_10 != NULL &&
-        ncut3_0 != NULL && ncut3_6 != NULL && ncut3_10 != NULL &&
-        ncut1_3 != NULL && ncut1_7 != NULL && ncut1_11 != NULL &&
-        ncut2_3 != NULL && ncut2_7 != NULL && ncut2_11 != NULL &&
-        ncut3_3 != NULL && ncut3_7 != NULL && ncut3_11 != NULL &&
-        ncut1_12 != NULL && ncut1_13 != NULL && ncut1_14 != NULL &&
-        ncut2_12 != NULL && ncut2_13 != NULL && ncut2_14 != NULL &&
-        ncut3_12 != NULL && ncut3_13 != NULL && ncut3_14 != NULL &&
-        ncut1_15 != NULL && ncut2_15 != NULL && ncut3_15 != NULL &&
-	rp!=NULL && plus3!=NULL && greject != NULL && LongRF != NULL){
+    if(rp!=NULL && plus3!=NULL && greject != NULL){
 	cutFlag = true;
     	return 1;
     }    
@@ -260,78 +177,65 @@ void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
 /*Makes histograms with cuts & gates implemented*/
 void SFPPlotter::MakeCutHistograms(ProcessedEvent ev) {
 	Reset();
+	int ch = 0;
 	for (int j = 0; j < 16; j++) {
-		double nQ3 =0, Q = 0, En=0, ph = 0;
-    	if (j == 8) continue;
-		if(ev.Long[j]> 50){
-    		for (int k = 0; k < 3; k++) {
-				if(ev.CrystalE[k]> 50){
-					std::string s = std::to_string(k);
-                    int b = 4*k;
-                    int b1 = 4*k + 1;
-                    int b2 = 4*k + 2;
-                    int b3 = 4*k + 3;
-					std::string v = std::to_string(b);
-					std::string v1 = std::to_string(b1);
-					std::string v2 = std::to_string(b2);
-					std::string v3 = std::to_string(b3);
-					ph = nLong(ev.Long[j],j);
-					MyFill(Form("RF_%d", j), 300, 0, 99, ev.RF[j]);   
-       	 			MyFill(Form("PSD_%d", j), 8192, 0, 8191, ph, 1024, 0, 1, ev.TR[j]);
-       	 			MyFill(Form("Long_%d", j), 8192, 0, 8191, ph);
-           			MyFill("g_" + s, 8192, 0, 8191, ev.CrystalE[k]);
-            		MyFill("g_all", 8192, 0, 8191, ev.CrystalE[k]);
-            		for (int l = 0; l < 3; l++) { //2D g-g coincidence
-                		if (b != k) {
-                    		MyFill("ggkb", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[l]);
-                    		MyFill("ggbk", 8192, 0, 8191, ev.CrystalE[l], 8192, 0, 8191, ev.CrystalE[k]);
-                		}//closes l!=k
-            		}//closes l3
-					if(checkcutg(Form("ncut3_%d",j),ev.Long[j],ev.TR[j])){
-						En = TOF(ev.RF[j],j,1);
-						nQ3 = TOF(ev.RF[j],j,2);
-						Q = -0.032613*(pow(nQ3,2))+0.816376*(pow(nQ3,1))+0.485893;
-        				MyFill(Form("RF3_%d", j), 300, 0, 99, ev.RF[j]);   
-       	 				MyFill(Form("PSD3_%d", j), 8192, 0, 8191, ph, 1024, 0, 1, ev.TR[j]);
-       	 				MyFill(Form("Long3_%d", j), 8192, 0, 8191, ph);
-       	 				MyFill(Form("LongRF3_%d", j), 8192, 0, 8191, ph, 300, 0, 99, ev.RF[j]);
-        				MyFill(Form("Q_%d", j),600,-8,1, Q);
-	        			MyFill(Form("En_%d", j),600,1,9, En);
-                        MyFill("g3_" + s, 8192, 0, 8191, ev.CrystalE[k]);
-                		MyFill("g3_all", 8192, 0, 8191, ev.CrystalE[k]);
-                		for (int l = 0; l < 3; b++) { //2D g-g coincidence
-                    		if (l != k) {
-                        		MyFill("ggkb3", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[l]);
-                        	    MyFill("ggbk3", 8192, 0, 8191, ev.CrystalE[l], 8192, 0, 8191, ev.CrystalE[k]);
-                    		}
-                		}//closes b5
-                        MyFill("ngamma3_all", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, Q);
-                        MyFill("ngamma3_all_Q", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, nQ3);
-                        if (ev.CloverChannel[b] == 0 || ev.CloverChannel[b] == 4 || ev.CloverChannel[b] == 8 || ev.CloverChannel[b1] == 12 || ev.CloverChannel[b2] == 2 || ev.CloverChannel[b2] == 6 || ev.CloverChannel[b2] == 10 || ev.CloverChannel[b3] == 3 || ev.CloverChannel[b3] == 7) {
-                            MyFill("ngammac3_all", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, Q);
-                            MyFill("ngammac3_all_Q", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, nQ3);
-                            if (j != 4 && j != 5 && j != 10 && j != 14) {
-                                MyFill("ngammac3s_all", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, Q);
-                                MyFill("ngammac3s_all_Q", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, nQ3);
-                                MyFill(Form("ngammac3s_%d", j), 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, Q);
-                            }
+        if (j == 8 || ev.RF3[j] == -1) continue;
+    	for (int k = 0; k < 3; k++) {
+		    if(ev.CrystalE[k] == -1) continue;
+			std::string s = std::to_string(k);
+           	// if (fabs(ev.CloverRelTime[k]) < 100 ) continue;
+         	//	cout << "greject check" << endl;
+            MyFill("g_" + s, 8192, 0, 8191, ev.CrystalE[k]);
+            MyFill("g_all", 8192, 0, 8191, ev.CrystalE[k]);
+            for (int b = 0; b < 3; b++) { //2D g-g coincidence
+                std::string S = std::to_string(b);
+                if (b != k) {
+                    MyFill("ggkb", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[b]);
+                    MyFill("ggbk", 8192, 0, 8191, ev.CrystalE[b], 8192, 0, 8191, ev.CrystalE[k]);
+                    MyFill("ggk_" + s + "_vs_all", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[b]);
+                    MyFill("ggb_" + S + "_vs_all", 8192, 0, 8191, ev.CrystalE[b], 8192, 0, 8191, ev.CrystalE[k]);
+                }
+            }//closes b5
+			if(ev.nLong3[j]> 50){
+				double nQ3 = 0;
+				nQ3 = -0.032613*(pow(ev.nQ3[j],2))+0.816376*(pow(ev.nQ3[j],1))+0.485893;
+        		MyFill(Form("RF3_%02d", j), 300, 0, 99, ev.RF3[j]);   
+       	 		MyFill(Form("PSD3_%02d", j), 8192, 0, 8191, ev.nLong3[j], 1024, 0, 1, ev.TR3[j]);
+        		MyFill(Form("nQ3_%02d", j),600,-8,1, nQ3);
+	        	MyFill(Form("nE3_%02d", j),600,1,9, ev.nE3[j]);
+                MyFill("g3_" + s, 8192, 0, 8191, ev.CrystalE[k]);
+                MyFill("g3_all", 8192, 0, 8191, ev.CrystalE[k]);
+                for (int b = 0; b < 3; b++) { //2D g-g coincidence
+                    std::string S = std::to_string(b);
+                    if (b != k) {
+                        MyFill("ggkb3", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[b]);
+                        MyFill("ggbk3", 8192, 0, 8191, ev.CrystalE[b], 8192, 0, 8191, ev.CrystalE[k]);
+                        MyFill("ggk3_" + s + "_vs_all", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[b]);
+                        MyFill("ggb3_" + S + "_vs_all", 8192, 0, 8191, ev.CrystalE[b], 8192, 0, 8191, ev.CrystalE[k]);
+                    }
+                }//closes b5
+	    		MyFill("ngamma3_all", 8192, 0 , 8191 , ev.CrystalE[k],600,-9,1, nQ3);
+			if(ev.nLong3[j] > 600){
+		 		MyFill("ngamma4_all", 8192, 0 , 8191 , ev.CrystalE[k],600,-9,1, nQ3);
+        			MyFill(Form("nQ4_%02d", j),600,-8,1, nQ3);
+	        		MyFill(Form("nE4_%02d", j),600,1,9, ev.nE3[j]);
+			}
+	    		MyFill("ngamma3_all_varBin", 8192, 0 , 8191 , ev.CrystalE[k], nQ3,2);
+	    	    if(checkcutg("plus3",ev.CrystalE[k],nQ3)){
+                    MyFill("gp3_" + s, 8192, 0, 8191, ev.CrystalE[k]);
+                    MyFill("gp3_all", 8192, 0, 8191, ev.CrystalE[k]);
+                    for (int b = 0; b < 3; b++) { //2D g-g coincidence
+                        std::string S = std::to_string(b);
+                        if (b != k) {
+                            MyFill("ggkbp3", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[b]);
+                            MyFill("ggbkp3", 8192, 0, 8191, ev.CrystalE[b], 8192, 0, 8191, ev.CrystalE[k]);
+                            MyFill("ggkp3_" + s + "_vs_all", 8192, 0, 8191, ev.CrystalE[k], 8192, 0, 8191, ev.CrystalE[b]);
+                            MyFill("ggbp3_" + S + "_vs_all", 8192, 0, 8191, ev.CrystalE[b], 8192, 0, 8191, ev.CrystalE[k]);
                         }
-					    if(checkcutg("LongRF",ev.Long[j],ev.RF[j])){
-		 					MyFill("ngamma6_all", 8192, 0 , 8191 , ev.CrystalE[k],600,-9,1, Q);
-		 					MyFill("ngamma6_all_Q", 8192, 0 , 8191 , ev.CrystalE[k],600,-9,1, nQ3);
-                            if(ev.CloverChannel[b] == 0 || ev.CloverChannel[b] == 4 || ev.CloverChannel[b] == 8 || ev.CloverChannel[b1] == 12 || ev.CloverChannel[b2] == 2 || ev.CloverChannel[b2] == 6 || ev.CloverChannel[b2] == 10 || ev.CloverChannel[b3] == 3 || ev.CloverChannel[b3] == 7) {
-                                MyFill("ngammac6_all", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, Q);
-                                MyFill("ngammac6_all_Q", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, nQ3);
-                                if (j != 4 && j != 5 && j != 10 && j != 14) {
-                                    MyFill("ngammac6s_all", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, Q);
-                                    MyFill("ngammac6s_all_Q", 8192, 0, 8191, ev.CrystalE[k], 600, -9, 1, nQ3);
-                                }
-						    }
-					    }//closes LongRF
-					}//closes ncut3
-				}//closes CrystalE>50
-        	}//closes k3
-		}//closes Long>50
+                    }//closes b5
+	   	 		}//closes plus3 cut
+			}//closes nLong
+        }//closes k3
 	}//closes j16   
 }//closes MakeCutHisto
 

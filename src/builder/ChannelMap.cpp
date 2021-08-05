@@ -5,6 +5,7 @@
 	in a simple way. Takes in a definition file and parses it into an unordered_map container.
 
 	Written by G.W. McCann Oct. 2020
+	 Updated by JF Perello May 2021 for CATRiNA
 */
 #include "EventBuilder.h"
 #include "ChannelMap.h"
@@ -60,7 +61,10 @@ bool ChannelMap::FillMap(std::string& name) {
 			this_chan.detectorID = id;
 			this_chan.detectorPart = std::stoi(partname);
 
+		} else if (type =="TRASH"){
+			this_chan.detectorType = TRASH;
 		}
+		
 
 		cmap[gchan] = this_chan;
 	}

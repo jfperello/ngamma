@@ -5,6 +5,7 @@
 	in a simple way. Takes in a definition file and parses it into an unordered_map container.
 
 	Written by G.W. McCann Oct. 2020
+ 	Updated by JF Perello May 2021
 */
 #ifndef CHANNELMAP_H
 #define CHANNELMAP_H
@@ -17,9 +18,10 @@ struct Channel {
 
 //Detector part/type identifiers for use in the code
 enum DetAttribute {
-	CATRINA,
-	CRYST = 88,
-	SHIELD = 99,
+	TRASH,
+	CATRINA=11,
+	CRYST = 50,
+	SHIELD = 99
 };
 
 

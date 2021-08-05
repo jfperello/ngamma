@@ -1,0 +1,19 @@
+Format: global_channel detectorID_number detectorType_identifier detectorPart_identifier
+NOTE: the catrina array is given the UNIQUE detector id of 11 and the RF is part 16 of detector type catrina. 
+1	11	CATRINA		0
+2	11	CATRINA		1
+3	11	CATRINA		2
+4	11	CATRINA		3
+5	11	CATRINA		4
+6	11	CATRINA		5
+7	11	CATRINA		6
+8	11	CATRINA		7
+9	11	CATRINA		8
+10	11	CATRINA		9
+11	11	CATRINA		10
+12	11	CATRINA		11
+13	11	CATRINA		12
+14	11	CATRINA		13
+15	11	CATRINA		14
+16	11	CATRINA		15
+
